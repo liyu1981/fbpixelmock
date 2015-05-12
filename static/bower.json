@@ -1,0 +1,22 @@
+{
+  "name": "pixel_debugger_ui",
+  "version": "0.0.0",
+  "homepage": "https://github.com/liyu1981/pixel_debugger",
+  "authors": [
+    "LI Yu <liyuhk@fb.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "bootstrap": "~3.3.4",
+    "react": "~0.13.3",
+    "react-bootstrap": "~0.21.2"
+  }
+}
