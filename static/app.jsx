@@ -1,13 +1,24 @@
 var React = require('react');
+React.addons = require('react/addons');
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
+var Radium = require('radium');
 
 var ReactBootstrap = require('react-bootstrap');
 var Panel = ReactBootstrap.Panel;
 var Input = ReactBootstrap.Input;
 var Button = ReactBootstrap.Button;
+var Label = ReactBootstrap.Label;
 
 var Reactable = require('reactable');
 // and use reactable's Table
 var Table = Reactable.Table;
+var Tr = Reactable.Tr;
+
+// ace editor
+var AceEditor  = require('react-ace');
+require('brace/mode/html');
+require('brace/theme/github');
 
 EVENTS_MAX = 100;
 
@@ -36,51 +47,68 @@ function onceLoaded(iframe, callback) {
 }
 
 var PixelEditor = React.createClass({
-  getDefaultPixelCode: function() {
-    return "<p>Working...</p> \
-<script> \
-(function() { \
-  var _fbq = window._fbq || (window._fbq = []); \
-  if (!_fbq.loaded) { \
-    var fbds = document.createElement('script'); \
-    fbds.async = true; \
-    fbds.src = '/fbds.js'; \
-    var s = document.getElementsByTagName('script')[0]; \
-    s.parentNode.insertBefore(fbds, s); \
-    _fbq.loaded = true; \
-  } \
-})(); \
-window._fbq = window._fbq || []; \
-window._fbq.push(['track', '6014777872661', {'value':'0.00','currency':'USD'}]); \
-</script> \
-<noscript> \
-  <img height='1' width='1' alt='' style='display:none' src='https://www.facebook.com/tr?ev=6014777872661&amp;cd[value]=0.00&amp;cd[currency]=USD&amp;noscript=1' /> \
-</noscript>";
+  aceEditorName: 'pixelAceEditor',
+
+  loadDefaultPixelCode: function(editor) {
+    var editor = ace.edit(this.aceEditorName);
+    if (editor) {
+      var s = editor.getSession();
+      s.setOption("useWorker", false);
+      s.setUseWrapMode(true);
+      s.setValue([
+"<script> ",
+"(function() { ",
+"  var _fbq = window._fbq || (window._fbq = []); ",
+"  if (!_fbq.loaded) { ",
+"    var fbds = document.createElement('script'); ",
+"    fbds.async = true; ",
+"    fbds.src = '//connect.facebook.net/en_US/fbds.js'; ",
+"    var s = document.getElementsByTagName('script')[0]; ",
+"    s.parentNode.insertBefore(fbds, s); ",
+"    _fbq.loaded = true; ",
+"  } ",
+"})(); ",
+"window._fbq = window._fbq || []; ",
+"window._fbq.push(['track', '6014777872661', {'value':'0.00','currency':'USD'}]); ",
+"</script> ",
+"<noscript> ",
+"  <img height='1' width='1' alt='' style='display:none' src='https://www.facebook.com/tr?ev=6014777872661&amp;cd[value]=0.00&amp;cd[currency]=USD&amp;noscript=1' /> ",
+"</noscript>"
+      ].join('\n'));
+    }
   },
 
   firePixel: function() {
-    var code = $('#pixelCodeTA').val();
-    var name = 'fbpixel' + Math.random().toString().replace('.', '');
-    var isLegacy = !!(window.attachEvent && !window.addEventListener);
-    var el = isLegacy ? '<iframe name="' + name + '">' : 'iframe';
-    var iframe = document.createElement(el);
-    iframe.id = name;
-    iframe.name = name;
-    iframe.style.display = 'none';
-    onceLoaded(iframe, function() {
-      console.log('iframe loaded, now injecting pixel code');
-      var body = $(iframe).contents().find('body');
-      body.append('<html><head></head><body>' + code + '</body></html>');
-    });
-    document.body.appendChild(iframe);
+    var editor = ace.edit(this.aceEditorName);
+    if (editor) {
+      var code = editor.getSession().getValue();
+      // hijacking!
+      code = code.replace('//connect.facebook.net/en_US/fbds.js', '/fbds.js');
+      var name = 'fbpixel' + Math.random().toString().replace('.', '');
+      var isLegacy = !!(window.attachEvent && !window.addEventListener);
+      var el = isLegacy ? '<iframe name="' + name + '">' : 'iframe';
+      var iframe = document.createElement(el);
+      iframe.id = name;
+      iframe.name = name;
+      iframe.style.display = 'none';
+      onceLoaded(iframe, function() {
+        console.log('iframe loaded, now injecting pixel code');
+        var body = $(iframe).contents().find('body');
+        body.append('<html><head></head><body>' + code + '</body></html>');
+      });
+      document.body.appendChild(iframe);
+    }
   },
 
   render: function() {
     return (
-      <Panel header="Pixel Editor">
+      <Panel header={<h3>Pixel Editor</h3>}>
         <form>
-          <Input id='pixelCodeTA' type='textarea' defaultValue={this.getDefaultPixelCode()} />
-          <Button bsStyle='danger' onClick={this.firePixel}>Fire!</Button>
+          <AceEditor name={this.aceEditorName}
+                     mode='html' theme='github'
+                     height='350px' width='100%'
+                     onLoad={this.loadDefaultPixelCode} />
+          <Button bsSize='large' bsStyle='danger' onClick={this.firePixel} block>Fire!</Button>
         </form>
       </Panel>
     );
@@ -124,6 +152,16 @@ var EventInspector = React.createClass({
     };
   },
 
+  componentDidUpdate: function(prevProps, prevState) {
+    var domroot = this.getDOMNode();
+    var trs = $(domroot).find('.table tbody tr');
+    if (trs) {
+      var tr = $(trs[0]);
+      tr.removeClass().addClass('effect-blink-enter');
+      setTimeout(function() { tr.addClass('effect-blink-leave'); }, 1000);
+    }
+  },
+
   genEventsTable: function() {
     if (this.state.events.length > 0) {
       var e = [];
@@ -142,7 +180,9 @@ var EventInspector = React.createClass({
         });
       });
       e.reverse();
-      return <Table className="table table-stripped" data={e} />
+      return (
+        <Table className="table table-stripped" data={e}></Table>
+      );
     } else {
       return (<p>Nothing yet!</p>);
     }
@@ -150,42 +190,10 @@ var EventInspector = React.createClass({
 
   render: function() {
     return (
-      <Panel header="Event Inspector">
+      <Panel header={<h3>Events Inspector</h3>}>
         {this.genEventsTable()}
       </Panel>
     );
-  }
-});
-
-var EIEventsTab = React.createClass({
-  render: function() {
-    var rows = [];
-    if (this.props.events) {
-      this.props.events.forEach(function(item) {
-        console.log('item is', item);
-        rows.push(
-          <tr>
-            <td>{item['time']}</td>
-            <td>{item['method']}</td>
-            <td><pre>{item['headers']}</pre></td>
-            <td><pre>{item['params'] || item['body']}</pre></td>
-          </tr>
-        );
-      });
-    }
-    var tab = (
-      <Table responsive striped bordered condensed hover>
-        <thead><tr>
-            <th>Time</th>
-            <th>Method</th>
-            <th>Header</th>
-            <th>Params/Body</th>
-        </tr></thead>
-        <tbody>
-          {rows}
-        </tbody>
-      </Table>);
-    return tab;
   }
 });
 

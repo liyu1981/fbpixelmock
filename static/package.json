@@ -9,7 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ace": "git://github.com/ajaxorg/ace.git",
+    "brace": "^0.5.1",
+    "radium": "^0.11.1",
     "react": "^0.13.3",
+    "react-ace": "^2.0.0",
     "react-bootstrap": "^0.21.2",
     "reactable": "^0.10.1",
     "reactify": "^1.1.1"
