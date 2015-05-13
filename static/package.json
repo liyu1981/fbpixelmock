@@ -1,0 +1,17 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.21.2",
+    "reactable": "^0.10.1",
+    "reactify": "^1.1.1"
+  }
+}

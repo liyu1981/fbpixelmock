@@ -1,3 +1,14 @@
+var React = require('react');
+
+var ReactBootstrap = require('react-bootstrap');
+var Panel = ReactBootstrap.Panel;
+var Input = ReactBootstrap.Input;
+var Button = ReactBootstrap.Button;
+
+var Reactable = require('reactable');
+// and use reactable's Table
+var Table = Reactable.Table;
+
 EVENTS_MAX = 100;
 
 function getParameterByName(name) {
@@ -23,19 +34,6 @@ function onceLoaded(iframe, callback) {
     iframe.onload = onload;
   }
 }
-
-(function(rb, scope) {
-  // import all ReactBootstrap components into current scope
-  for (var className in rb) {
-    if (className && className[0] >= 'A' && className[0] <= 'Z') {
-      // Components has a name started with capital letter
-      scope[className] = rb[className];
-    }
-  }
-})(ReactBootstrap, window);
-
-// and use reactable's Table
-var Table = Reactable.Table;
 
 var PixelEditor = React.createClass({
   getDefaultPixelCode: function() {
@@ -131,9 +129,11 @@ var EventInspector = React.createClass({
       var e = [];
       this.state.events.forEach(function(event) {
         var content = '<p>headers:</p> ' +
-          '<pre>' + JSON.stringify(event['headers'], null, 2) + '</pre>' +
+          '<pre style="max-width: 960px;">' +
+          JSON.stringify(event['headers'], null, 2) + '</pre>' +
           (('params' in event) ? '<p>params</p>' : '<p>body</p>') +
-          '<pre>' + JSON.stringify(event['params'] || event['body'], null, 2) + '</pre>';
+          '<pre style="max-width: 960px;">' +
+          JSON.stringify(event['params'] || event['body'], null, 2) + '</pre>';
 
         e.push({
           time: (new Date(event['time'])).toString(),
@@ -141,7 +141,8 @@ var EventInspector = React.createClass({
           content: Reactable.unsafe(content)
         });
       });
-      return <Table className="table table-bordered table-stripped" data={e} />
+      e.reverse();
+      return <Table className="table table-stripped" data={e} />
     } else {
       return (<p>Nothing yet!</p>);
     }
