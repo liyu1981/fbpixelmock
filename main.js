@@ -2,7 +2,6 @@ var rask = require('rask');
 
 rask
   .server({
-    bind_port: process.env.PORT || 5000,
     serveStatic: true,
     enableWebSocket: true,
     enableGzip: true
@@ -13,5 +12,6 @@ rask
   .wsRoute(function(wsServer) {
     require('./lib/wsserver').register(wsServer);
   })
-  .start();
-
+  .start({
+    bind_port: process.env.PORT || 5000
+  });
