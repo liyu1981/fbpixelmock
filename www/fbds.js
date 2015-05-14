@@ -20,7 +20,7 @@ return;
 
 
 var f=/^\d+$/,
-g=window.pixel_debugger_endpoint||'http://localhost:12345/tr',
+g=window.pixel_debugger_endpoint||('//' + window.location.host + '/tr'),
 
 h={},
 i=[],

@@ -1,0 +1,17 @@
+{
+  "bind_port": "8080",
+  "bunyan": {
+    "name": "pixel-debugger-server",
+    "streams": [
+      {
+      "level": "error",
+      "path": "./log/pixel-debugger-server-error.log"
+    }
+    ]
+  },
+  "static": {
+    "default": "app.html",
+    "directory": "./www"
+  }
+}
+
