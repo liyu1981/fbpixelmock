@@ -5,7 +5,7 @@
     "streams": [
       {
       "level": "error",
-      "path": "./log/pixel-debugger-server-error.log"
+      "path": "./pixel-debugger-server-error.log"
     }
     ]
   },
