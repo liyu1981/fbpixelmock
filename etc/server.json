@@ -1,5 +1,5 @@
 {
-  "bind_port": "8080",
+  "bind_port": "5000",
   "bunyan": {
     "name": "pixel-debugger-server",
     "streams": [
