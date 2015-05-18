@@ -55404,6 +55404,7 @@ var PixelEditor = React.createClass({displayName: "PixelEditor",
     var editor = ace.edit(this.aceEditorName);
     if (editor) {
       var code = editor.getSession().getValue();
+      window._codeobj = $(code);
       // hijacking!
       code = code.replace('//connect.facebook.net/en_US/fbds.js', '/fbds.js');
       this.genIframe(function(iframe) {
