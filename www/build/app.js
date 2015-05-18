@@ -55473,11 +55473,19 @@ var EventInspector = React.createClass({displayName: "EventInspector",
   restartWSocketStream: function() {
     var self = this;
     if (this.socket) {
+      clearInterval(this.socket.keepalive);
       this.socket.close();
     }
     socket = this.socket = new WebSocket('ws://' + location.host);
     socket.onopen = function() {
-      socket.send(JSON.stringify({ pixelId: self.props.pixelId }));
+      socket.send(JSON.stringify({
+        type: 'hello',
+        pixelId: self.props.pixelId
+      }));
+      // now start the keepalive pinger (as heroku will shutdown us)
+      socket.keepalive = setInterval(function() {
+        socket.send(JSON.stringify({ type: 'ping' }));
+      }, 5 * 1000);
     };
     socket.onmessage = function(event) {
       var data = JSON.parse(event.data);
