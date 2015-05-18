@@ -222,17 +222,25 @@ var PixelEditor = React.createClass({
 var EventInspector = React.createClass({
   getInitialState: function() {
     return {
-      events: []
+      events: {
+        'null': []
+      }
     }
   },
 
-  appendEvent: function(data) {
-    var evts = this.state.events;
+  appendEvent: function(pixelId, data) {
+    var newdata = {};
+    var evts = [];
+    if (pixelId in this.state.events) {
+      evts = this.state.events[pixelId];
+    }
     if (evts.length + 1 > MAX_EVENTS) {
       evts.shift();
     }
+    console.log('data is', data);
     evts.push(data.event);
-    this.setState({events: evts});
+    newdata[pixelId] = evts;
+    this.setState({ events: _.extend(this.state.events, newdata) });
   },
 
   restartWSocketStream: function() {
@@ -245,17 +253,18 @@ var EventInspector = React.createClass({
       socket.send(JSON.stringify({ pixelId: self.props.pixelId }));
     };
     socket.onmessage = function(event) {
-      console.info('received event:', event);
       var data = JSON.parse(event.data);
+      console.info('received event:', event, data);
       switch(data['type']) {
         case 'ok':
           break;
         case 'event':
-          self.appendEvent(data);
+          self.appendEvent(data.event.pixelId, data);
           break;
       }
     };
     socket.onclose = function() {
+      console.error('connection is closed by remote side.');
     };
   },
 
@@ -274,29 +283,32 @@ var EventInspector = React.createClass({
   },
 
   genEventsTable: function() {
-    if (this.state.events.length > 0) {
-      var e = [];
-      this.state.events.forEach(function(event) {
-        var content = '<p>headers:</p> ' +
-          '<pre style="max-width: 960px;">' +
-          JSON.stringify(event['headers'], null, 2) + '</pre>' +
-          (('params' in event) ? '<p>params</p>' : '<p>body</p>') +
-          '<pre style="max-width: 960px;">' +
-          JSON.stringify(event['params'] || event['body'], null, 2) + '</pre>';
-
-        e.push({
-          time: (new Date(event['time'])).toString(),
-          method: event['method'],
-          content: Reactable.unsafe(content)
+    if (this.props.pixelId in this.state.events) {
+      var evts = this.state.events[this.props.pixelId];
+      if (evts.length > 0) {
+        var e = [];
+        evts.forEach(function(event) {
+          var content = '<p>headers:</p> ' +
+            '<pre style="max-width: 960px;">' +
+            JSON.stringify(event['headers'], null, 2) +
+            '</pre>' +
+            (('params' in event) ? '<p>params</p>' : '<p>body</p>') +
+            '<pre style="max-width: 960px;">' +
+            JSON.stringify(event['params'] || event['body'], null, 2) +
+            '</pre>';
+          e.push({
+            time: (new Date(event['time'])).toString(),
+            method: event['method'],
+            content: Reactable.unsafe(content)
+          });
         });
-      });
-      e.reverse();
-      return (
-        <Table className="table table-stripped" data={e}></Table>
-      );
-    } else {
-      return (<p>Nothing yet!</p>);
+        e.reverse();
+        return (
+          <Table className="table table-stripped" data={e}></Table>
+        );
+      }
     }
+    return (<p>Nothing yet!</p>);
   },
 
   changePixelId: function(newPixelId, oldPixelId) {
