@@ -9,8 +9,16 @@ COMMENTS_HEAD="/* DO NOT MODIFY THIS FILE!
  * Regenerate it with update_fbds.sh
 */
 /* jshint ignore:start */
+(function(window,document,location,history) {
+  var fbq = window._fbq||(window._fbq=[]);
+  if(fbq.push!==Array.prototype.push && fbq._pixeldebugger) {
+    return;
+  } else {
+    fbq = window._fbq = [];
+  }
 "
 COMMENTS_FOOT="
+})(window,document,location,history);
 /* jshint ignore:end */"
 
 curl -s ${URL} >${TMPFILE}

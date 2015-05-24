@@ -203,6 +203,7 @@ var PixelEditor = React.createClass({
              onSelect={this.handleSelectPixelType}>
           <NavItem eventKey={'cp'}>Conversion Pixel</NavItem>
           <NavItem eventKey={'wcap'}>WCA Pixel</NavItem>
+          <NavItem eventKey={'yourweb'}>Your Website</NavItem>
         </Nav>
         <form className='voffset'>
           <AceEditor name={this.aceEditorName}
