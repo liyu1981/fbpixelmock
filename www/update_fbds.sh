@@ -18,6 +18,7 @@ COMMENTS_HEAD="/* DO NOT MODIFY THIS FILE!
   }
 "
 COMMENTS_FOOT="
+window._fbq._pixeldebugger = true;
 })(window,document,location,history);
 /* jshint ignore:end */"
 
