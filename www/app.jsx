@@ -195,14 +195,10 @@ var PixelEditor = React.createClass({
 
   render: function() {
     var header = (<b>Pixel Editor</b>);
-    return (
-      <Panel header={header}>
-        <Nav bsStyle='tabs' activeKey={this.state.pixelType}
-             onSelect={this.handleSelectPixelType}>
-          <NavItem eventKey={'cp'}>Conversion Pixel</NavItem>
-          <NavItem eventKey={'wcap'}>WCA Pixel</NavItem>
-          <NavItem eventKey={'yourweb'}>Your Website</NavItem>
-        </Nav>
+    var content = [];
+    console.log('this pixelType is', this.state.pixelType);
+    if (this.state.pixelType !== 'yourweb') {
+      content.push(
         <form className='voffset'>
           <AceEditor name={this.aceEditorName}
                      mode='html' theme='github'
@@ -214,6 +210,30 @@ var PixelEditor = React.createClass({
             Fire!
           </Button>
         </form>
+      );
+    } else {
+      content.push(
+        <center>
+          <h2>Use your website with this mock</h2>
+          <hr/>
+          Replace <br/>
+          <code>fbds.src = '//connect.facebook.net/en_US/fbds.js';</code><br/>
+          with <br/>
+          <code>fbds.src = 'http://fbpixelmock.herokuapp.com/fbds.js?sid={this.props.sessionId}';</code><br />
+          in your website.<br/><br/>
+          After that, try to fire your pixel on your website, and monitor events here.
+        </center>
+      );
+    }
+    return (
+      <Panel header={header}>
+        <Nav bsStyle='tabs' activeKey={this.state.pixelType}
+             onSelect={this.handleSelectPixelType}>
+          <NavItem eventKey={'cp'}>Conversion Pixel</NavItem>
+          <NavItem eventKey={'wcap'}>WCA Pixel</NavItem>
+          <NavItem eventKey={'yourweb'}>Your Website</NavItem>
+        </Nav>
+        {content}
       </Panel>
     );
   }

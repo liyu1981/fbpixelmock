@@ -51897,14 +51897,10 @@ var PixelEditor = React.createClass({displayName: "PixelEditor",
 
   render: function() {
     var header = (React.createElement("b", null, "Pixel Editor"));
-    return (
-      React.createElement(Panel, {header: header}, 
-        React.createElement(Nav, {bsStyle: "tabs", activeKey: this.state.pixelType, 
-             onSelect: this.handleSelectPixelType}, 
-          React.createElement(NavItem, {eventKey: 'cp'}, "Conversion Pixel"), 
-          React.createElement(NavItem, {eventKey: 'wcap'}, "WCA Pixel"), 
-          React.createElement(NavItem, {eventKey: 'yourweb'}, "Your Website")
-        ), 
+    var content = [];
+    console.log('this pixelType is', this.state.pixelType);
+    if (this.state.pixelType !== 'yourweb') {
+      content.push(
         React.createElement("form", {className: "voffset"}, 
           React.createElement(AceEditor, {name: this.aceEditorName, 
                      mode: "html", theme: "github", 
@@ -51916,6 +51912,30 @@ var PixelEditor = React.createClass({displayName: "PixelEditor",
             "Fire!"
           )
         )
+      );
+    } else {
+      content.push(
+        React.createElement("center", null, 
+          React.createElement("h2", null, "Use your website with this mock"), 
+          React.createElement("hr", null), 
+          "Replace ", React.createElement("br", null), 
+          React.createElement("code", null, "fbds.src = '//connect.facebook.net/en_US/fbds.js';"), React.createElement("br", null), 
+          "with ", React.createElement("br", null), 
+          React.createElement("code", null, "fbds.src = 'http://fbpixelmock.herokuapp.com/fbds.js?sid=", this.props.sessionId, "';"), React.createElement("br", null), 
+          "in your website.", React.createElement("br", null), React.createElement("br", null), 
+          "After that, try to fire your pixel on your website, and monitor events here."
+        )
+      );
+    }
+    return (
+      React.createElement(Panel, {header: header}, 
+        React.createElement(Nav, {bsStyle: "tabs", activeKey: this.state.pixelType, 
+             onSelect: this.handleSelectPixelType}, 
+          React.createElement(NavItem, {eventKey: 'cp'}, "Conversion Pixel"), 
+          React.createElement(NavItem, {eventKey: 'wcap'}, "WCA Pixel"), 
+          React.createElement(NavItem, {eventKey: 'yourweb'}, "Your Website")
+        ), 
+        content
       )
     );
   }
