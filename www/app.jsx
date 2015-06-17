@@ -2,9 +2,6 @@ var _ = require('underscore');
 
 var React = require('react');
 React.addons = require('react/addons');
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-
-var Radium = require('radium');
 
 var ReactBootstrap = require('react-bootstrap');
 var Panel = ReactBootstrap.Panel;
@@ -179,7 +176,8 @@ var PixelEditor = React.createClass({
       var code = editor.getSession().getValue();
       window._codeobj = $(code);
       // hijacking!
-      code = code.replace('//connect.facebook.net/en_US/fbds.js', '/fbds.js');
+      code = code.replace('//connect.facebook.net/en_US/fbds.js',
+                          '/fbds.js?sid=' + this.props.sessionId);
       this.genIframe(function(iframe) {
         console.info('iframe', iframe.name, 'loaded, now injecting pixel code');
         var body = $(iframe).contents().find('body');
@@ -246,6 +244,7 @@ var EventInspector = React.createClass({
   },
 
   restartWSocketStream: function() {
+    console.log('restarted ws socket', this.props.sessionId);
     var self = this;
     if (this.socket) {
       clearInterval(this.socket.keepalive);
@@ -254,12 +253,16 @@ var EventInspector = React.createClass({
     socket = this.socket = new WebSocket('ws://' + location.host);
     socket.onopen = function() {
       socket.send(JSON.stringify({
+        sessionId: self.props.sessionId,
         type: 'hello',
         pixelId: self.props.pixelId
       }));
       // now start the keepalive pinger (as heroku will shutdown us)
       socket.keepalive = setInterval(function() {
-        socket.send(JSON.stringify({ type: 'ping' }));
+        socket.send(JSON.stringify({
+          sessionId: self.props.sessionId,
+          type: 'ping'
+        }));
       }, 5 * 1000);
     };
     socket.onmessage = function(event) {
@@ -350,6 +353,7 @@ var EventInspector = React.createClass({
 var MyApp = React.createClass({
   getInitialState: function() {
     return {
+      sessionId: null,
       pixelId: 'null'
     };
   },
@@ -358,15 +362,32 @@ var MyApp = React.createClass({
     this.setState({ pixelId: newid });
   },
 
+  newSession: function() {
+    window.location.href = window.location.href +
+                           '?sessionId=' + Math.floor(Math.random() * 10000);
+  },
+
   render: function() {
+    var content = [];
+    if (this.state.sessionId) {
+      content.push(<PixelEditor {...this.state} />);
+      content.push(
+        <EventInspector {...this.state}
+                        onChangePixelId={this.changePixelId} />
+      );
+    } else {
+      content = (
+        <Button bsStyle='primary' bsSize='large' onClick={this.newSession}>
+          Start a New Session
+        </Button>
+      );
+    }
     return (
       <div>
         <br />
         <div className="container">
           <div className="row">
-            <PixelEditor {...this.state} />
-            <EventInspector {...this.state}
-              onChangePixelId={this.changePixelId} />
+            {content}
           </div>
         </div>
       </div>
@@ -378,4 +399,6 @@ var myApp = React.render(
   <MyApp />,
   document.getElementById('top-container')
 );
+
+myApp.setState({sessionId: getParameterByName('sessionId')});
 

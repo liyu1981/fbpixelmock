@@ -1,5 +1,5 @@
 {
-  "name": "pixel_debugger",
+  "name": "fbpixelmock",
   "version": "0.0.1",
   "description": "A tool to help you debugger Facebook pixel deployment.",
   "main": "main.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/liyu1981/pixel_debugger.git"
+    "url": "https://github.com/liyu1981/fbpixelmock.git"
   },
   "author": "LI Yu <liyuhk@fb.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/liyu1981/pixel_debugger/issues"
+    "url": "https://github.com/liyu1981/fbpixelmock/issues"
   },
-  "homepage": "https://github.com/liyu1981/pixel_debugger",
+  "homepage": "https://github.com/liyu1981/fbpixelmock",
   "dependencies": {
     "node-cache": "^2.1.1",
     "rask": "git://github.com/liyu1981/rask.git"
